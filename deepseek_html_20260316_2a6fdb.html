@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<title>PIG HUB · BYPASS SYSTEM</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@400;600&display=swap');
+
+:root {
+  --bg: #080608;
+  --panel: #0f080f;
+  --border: #2a0a1a;
+  --red: #ff1a40;
+  --red2: #ff5070;
+  --dim: #5a2535;
+  --text: #ddaabb;
+  --glow: 0 0 24px rgba(255,26,64,0.5);
+}
+
+* { 
+  margin:0; 
+  padding:0; 
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 12px;
+  position: relative;
+}
+
+html { height: -webkit-fill-available; }
+
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,26,64,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,26,64,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events:none;
+  z-index:0;
+}
+
+.page { 
+  display:none; 
+  position:relative; 
+  z-index:1; 
+  width:100%; 
+  max-width:400px; 
+  margin: 0 auto;
+}
+.page.active { 
+  display:flex; 
+  flex-direction:column; 
+  align-items:center; 
+}
+
+.logo {
+  font-family:'Teko',sans-serif;
+  font-size:3.8rem;
+  font-weight:600;
+  letter-spacing:0.15em;
+  color: var(--red);
+  text-shadow: 0 0 30px rgba(255,26,64,0.9), 0 0 60px rgba(255,26,64,0.4);
+  margin-bottom:2px;
+  text-align:center;
+  line-height: 1;
+}
+
+.sub {
+  font-size:0.58rem;
+  color: var(--dim);
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  margin-bottom:24px;
+  text-align:center;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius:8px;
+  padding:20px 16px;
+  width:100%;
+  position:relative;
+  overflow:hidden;
+  margin-bottom:12px;
+  backdrop-filter: blur(2px);
+}
+
+.card::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;
+  width:4px;height:100%;
+  background:linear-gradient(180deg,var(--red),transparent);
+}
+
+.card-title {
+  font-size:0.6rem;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--dim);
+  margin-bottom:20px;
+  font-weight:600;
+}
+
+.field { margin-bottom:16px; }
+.field label {
+  display:block;
+  font-size:0.55rem;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--dim);
+  margin-bottom:6px;
+}
+
+input[type=text], input[type=password], input[type=email] {
+  width:100%;
+  background:#06040a;
+  border:1.5px solid var(--border);
+  border-radius:6px;
+  color:var(--text);
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.9rem;
+  padding:14px 14px;
+  outline:none;
+  transition:all 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input:focus {
+  border-color:var(--red);
+  box-shadow:var(--glow);
+  color:#fff;
+}
+
+.file-zone {
+  width:100%;
+  border:1.5px dashed var(--border);
+  border-radius:12px;
+  padding:32px 16px;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s;
+  background:#06040a;
+  margin-bottom:8px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-zone:active { 
+  border-color:var(--red); 
+  background: rgba(255,26,64,0.05);
+  transform: scale(0.99);
+}
+
+.file-zone input { display:none; }
+.file-zone .ficon { 
+  font-size:2.8rem; 
+  margin-bottom:12px;
+  filter: drop-shadow(0 0 10px rgba(255,26,64,0.3));
+}
+.file-zone .ftxt { 
+  font-size:0.8rem; 
+  color:var(--dim); 
+  letter-spacing:0.1em;
+  margin-bottom:4px;
+}
+.file-zone .fname { 
+  font-size:0.85rem; 
+  color:var(--red2); 
+  margin-top:12px;
+  font-weight:600;
+  word-break: break-word;
+  max-width: 90%;
+}
+
+.btn {
+  width:100%;
+  padding:16px 12px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.85rem;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  border:1.5px solid var(--red);
+  background:transparent;
+  color:var(--red);
+  cursor:pointer;
+  border-radius:8px;
+  transition:all 0.15s;
+  margin-top:6px;
+  font-weight:600;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  background:var(--red);
+  color:#000;
+  box-shadow:var(--glow);
+  transform: scale(0.98);
+}
+
+.btn-sm {
+  padding:14px 16px;
+  font-size:0.75rem;
+  margin-top:0;
+  flex: 1;
+}
+
+.btn-ghost {
+  border-color:var(--dim);
+  color:var(--dim);
+}
+.btn-ghost:active { 
+  background:var(--dim); 
+  color:#000; 
+  box-shadow:none; 
+}
+
+.status {
+  display:none;
+  align-items:center;
+  gap:8px;
+  font-size:0.7rem;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  padding:12px 14px;
+  border-radius:6px;
+  margin-top:16px;
+  width:100%;
+  font-weight:500;
+}
+.status.show { display:flex; }
+.status.ok  { 
+  color:#00ff88; 
+  background:rgba(0,255,136,0.1); 
+  border:1px solid rgba(0,255,136,0.2); 
+}
+.status.err { 
+  color:var(--red); 
+  background:rgba(255,26,64,0.12); 
+  border:1px solid rgba(255,26,64,0.3); 
+}
+.status.inf { 
+  color:var(--red2); 
+  background:rgba(255,80,112,0.12); 
+  border:1px solid rgba(255,80,112,0.25); 
+}
+
+.dot { 
+  width:6px; 
+  height:6px; 
+  border-radius:50%; 
+  background:currentColor; 
+  flex-shrink:0; 
+  animation:blink 1.2s infinite; 
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+.link-box {
+  width:100%;
+  background:#06040a;
+  border:1.5px solid var(--border);
+  border-radius:8px;
+  padding:16px 14px;
+  font-size:0.8rem;
+  color:var(--red2);
+  word-break:break-all;
+  line-height:1.6;
+  margin-bottom:12px;
+  position:relative;
+}
+
+.ls-box {
+  width:100%;
+  background:#06040a;
+  border:1.5px solid var(--red);
+  border-radius:8px;
+  padding:16px 14px;
+  font-size:0.8rem;
+  color:#fff;
+  word-break:break-all;
+  line-height:1.7;
+  margin-bottom:12px;
+  box-shadow: 0 0 15px rgba(255,26,64,0.25);
+}
+
+.row { 
+  display:flex; 
+  gap:10px; 
+  margin-top:8px; 
+  margin-bottom:6px;
+}
+
+.divider {
+  width:100%;
+  text-align:center;
+  font-size:0.6rem;
+  color:var(--dim);
+  letter-spacing:0.15em;
+  margin:16px 0 10px;
+  position:relative;
+}
+.divider::before, .divider::after {
+  content:'';
+  position:absolute;
+  top:50%; width:38%;
+  height:1px;
+  background:var(--border);
+}
+.divider::before { left:0; }
+.divider::after { right:0; }
+
+.link-go {
+  display:block;
+  text-align:center;
+  font-size:0.7rem;
+  color:var(--dim);
+  cursor:pointer;
+  margin-top:20px;
+  letter-spacing:0.1em;
+  text-decoration:underline;
+  padding:12px 0;
+}
+.link-go:active { color:var(--red2); }
+
+.copied {
+  position:absolute;
+  top:8px; right:10px;
+  font-size:0.6rem;
+  color:#00ff88;
+  letter-spacing:0.15em;
+  animation:fo 1.4s forwards;
+  background: rgba(0,0,0,0.8);
+  padding:4px 8px;
+  border-radius:4px;
+}
+@keyframes fo{0%{opacity:1}70%{opacity:1}100%{opacity:0}}
+
+.progress-wrap { 
+  width:100%; 
+  height:6px; 
+  background:var(--border); 
+  border-radius:3px; 
+  margin:16px 0; 
+  overflow:hidden; 
+}
+.progress-bar { 
+  height:100%; 
+  background:var(--red); 
+  width:0%; 
+  transition:width 0.3s; 
+  box-shadow:var(--glow); 
+}
+
+.user-badge {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:0.75rem;
+  color:var(--dim);
+  margin-bottom:16px;
+  padding:8px 12px;
+  background: rgba(255,26,64,0.05);
+  border-radius:20px;
+  border: 1px solid var(--border);
+  width: fit-content;
+  max-width: 100%;
+}
+.user-badge span { 
+  color:var(--red2); 
+  font-weight:600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.notice-box {
+  margin-top:20px;
+  font-size:0.7rem;
+  color:var(--dim);
+  line-height:1.6;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:rgba(255,26,64,0.05);
+}
+
+.owner-badge {
+  background: rgba(255,26,64,0.2);
+  color: #ff1a40;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+@media(max-width:380px){
+  .logo{font-size:3.2rem;}
+  .btn{font-size:0.8rem; padding:15px;}
+  .card{padding:16px;}
+  .file-zone{padding:24px 12px; min-height: 150px;}
+  .user-badge{font-size:0.7rem;}
+}
+
+input, button, .file-zone {
+  touch-action: manipulation;
+}
+</style>
+</head>
+<body>
+
+<!-- PAGE: REGISTER -->
+<div class="page active" id="page-register">
+  <div class="logo">PIG HUB</div>
+  <div class="sub">Script Protection System</div>
+
+  <div class="card">
+    <div class="card-title">🐷 สมัครใช้งาน</div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="reg-user" placeholder="ชื่อผู้ใช้..." maxlength="20" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="reg-pass" placeholder="รหัสผ่าน..." />
+    </div>
+    <div class="field">
+      <label>Confirm Password</label>
+      <input type="password" id="reg-pass2" placeholder="ยืนยันรหัสผ่าน..." />
+    </div>
+    <button class="btn" onclick="doRegister()">สมัครใช้งาน</button>
+    <div class="status" id="reg-status"></div>
+    <div class="divider">หรือ</div>
+    <button class="btn btn-ghost" onclick="goPage('page-login')">เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<!-- PAGE: LOGIN -->
+<div class="page" id="page-login">
+  <div class="logo">PIG HUB</div>
+  <div class="sub">Script Protection System</div>
+
+  <div class="card">
+    <div class="card-title">🐷 เข้าสู่ระบบ</div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="ชื่อผู้ใช้..." />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="รหัสผ่าน..." />
+    </div>
+    <button class="btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="status" id="login-status"></div>
+    <div class="divider">หรือ</div>
+    <button class="btn btn-ghost" onclick="goPage('page-register')">สมัครใช้งาน</button>
+  </div>
+</div>
+
+<!-- PAGE: BYPASS -->
+<div class="page" id="page-bypass">
+  <div class="logo">PIG HUB</div>
+  <div class="sub">Bypass & Protect</div>
+
+  <div class="user-badge" id="user-badge">👤 ยินดีต้อนรับ, <span id="badge-name">-</span></div>
+
+  <div class="card">
+    <div class="card-title">📁 อัปโหลดสคริปต์</div>
+    <label class="file-zone" id="file-zone" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
+      <input type="file" id="file-input" accept=".lua,.txt" onchange="onFileChange()" />
+      <div class="ficon">📄</div>
+      <div class="ftxt">แตะเพื่อเลือกไฟล์</div>
+      <div class="ftxt">หรือลากไฟล์มาวาง</div>
+      <div class="ftxt" style="font-size:0.7rem; margin-top:8px;">รองรับ .lua และ .txt</div>
+      <div class="fname" id="file-name"></div>
+    </label>
+
+    <div class="progress-wrap" id="prog-wrap" style="display:none">
+      <div class="progress-bar" id="prog-bar"></div>
+    </div>
+
+    <button class="btn" onclick="doBypass()">⚡ bypass & สร้างลิงก์</button>
+    <div class="status" id="bypass-status"></div>
+  </div>
+
+  <div class="card" id="result-card" style="display:none;">
+    <div class="card-title">✅ bypass สำเร็จ</div>
+
+    <div style="font-size:0.6rem;color:var(--dim);margin-bottom:6px">🔗 PROTECTED LINK</div>
+    <div class="link-box" id="result-link" onclick="copyLink()"></div>
+    <div class="row">
+      <button class="btn btn-sm" onclick="copyLink()">📋 คัดลอกลิงก์</button>
+      <button class="btn btn-sm btn-ghost" onclick="dlScript()">📥 ดาวน์โหลด</button>
+    </div>
+
+    <div style="height:16px"></div>
+    <div style="font-size:0.6rem;color:var(--dim);margin-bottom:6px">⚙️ LOADSTRING (วางใน executor)</div>
+    <div class="ls-box" id="result-ls" onclick="copyLs()"></div>
+    <button class="btn btn-sm" onclick="copyLs()">📋 คัดลอก loadstring</button>
+
+    <div class="notice-box">
+      ⚠️ คนอื่นเปิดในเบราว์เซอร์/Google → เจอข้อความด่า<br>
+      ✅ Executor (Delta, Fluxus) ใช้ได้ปกติ<br>
+      🔐 เจ้าของเปิดดูสคริปต์ได้
+    </div>
+  </div>
+
+  <span class="link-go" onclick="doLogout()">🚪 ออกจากระบบ</span>
+</div>
+
+<!-- PAGE: SCRIPT (hidden) -->
+<div class="page" id="page-script"></div>
+
+<script>
+// =========================================
+// PIG HUB - BYPASS SYSTEM
+// =========================================
+
+// Storage helpers
+function save(k, v) {
+  try {
+    localStorage.setItem(k, JSON.stringify(v));
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+function load(k, d) {
+  try {
+    const val = localStorage.getItem(k);
+    return val ? JSON.parse(val) : d;
+  } catch(e) {
+    return d;
+  }
+}
+
+// Page router
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// =========================================
+// AUTH
+// =========================================
+function doRegister() {
+  const u = document.getElementById('reg-user').value.trim();
+  const p = document.getElementById('reg-pass').value;
+  const p2 = document.getElementById('reg-pass2').value;
+  
+  if (!u || !p || !p2) {
+    showSt('reg-status', 'err', '❌ กรอกให้ครบทุกช่อง');
+    return;
+  }
+  
+  if (p !== p2) {
+    showSt('reg-status', 'err', '❌ รหัสผ่านไม่ตรงกัน');
+    return;
+  }
+  
+  if (u.length < 3) {
+    showSt('reg-status', 'err', '❌ ชื่อผู้ใช้ต้อง 3 ตัวขึ้นไป');
+    return;
+  }
+  
+  try {
+    let users = {};
+    const saved = localStorage.getItem('ph_users');
+    if (saved) {
+      try { users = JSON.parse(saved); } catch(e) { users = {}; }
+    }
+    
+    if (users[u]) {
+      showSt('reg-status', 'err', '❌ มีชื่อผู้ใช้นี้แล้ว');
+      return;
+    }
+    
+    users[u] = { 
+      pw: btoa(p), 
+      created: Date.now() 
+    };
+    
+    localStorage.setItem('ph_users', JSON.stringify(users));
+    localStorage.setItem('ph_session', JSON.stringify(u));
+    
+    showSt('reg-status', 'ok', '✅ สมัครสำเร็จ กำลังเข้าใช้งาน...');
+    
+    setTimeout(function() {
+      document.getElementById('badge-name').textContent = u;
+      document.getElementById('result-card').style.display = 'none';
+      document.getElementById('file-name').textContent = '';
+      selectedFile = null;
+      selectedContent = '';
+      
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-bypass').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      showSt('bypass-status', 'ok', '👋 ยินดีต้อนรับ ' + u);
+    }, 1000);
+    
+  } catch(e) {
+    console.error('Register error:', e);
+    showSt('reg-status', 'err', '❌ เกิดข้อผิดพลาด ลองใหม่');
+  }
+}
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  
+  if (!u || !p) {
+    showSt('login-status', 'err', '❌ กรอกชื่อผู้ใช้/รหัสผ่าน');
+    return;
+  }
+  
+  try {
+    let users = {};
+    const saved = localStorage.getItem('ph_users');
+    if (saved) {
+      users = JSON.parse(saved);
+    }
+    
+    if (!users[u] || users[u].pw !== btoa(p)) {
+      showSt('login-status', 'err', '❌ ชื่อผู้ใช้หรือรหัสผิด');
+      return;
+    }
+    
+    localStorage.setItem('ph_session', JSON.stringify(u));
+    
+    showSt('login-status', 'ok', '✅ เข้าสู่ระบบสำเร็จ');
+    
+    setTimeout(function() {
+      document.getElementById('badge-name').textContent = u;
+      document.getElementById('result-card').style.display = 'none';
+      document.getElementById('file-name').textContent = '';
+      selectedFile = null;
+      selectedContent = '';
+      
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-bypass').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      showSt('bypass-status', 'ok', '👋 ยินดีต้อนรับ ' + u);
+    }, 800);
+    
+  } catch(e) {
+    showSt('login-status', 'err', '❌ ระบบขัดข้อง ลองใหม่');
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('ph_session');
+  goPage('page-login');
+}
+
+// Auto login
+(function autoLogin() {
+  try {
+    const session = localStorage.getItem('ph_session');
+    if (session) {
+      const u = JSON.parse(session);
+      const users = JSON.parse(localStorage.getItem('ph_users') || '{}');
+      
+      if (users[u]) {
+        setTimeout(function() {
+          document.getElementById('badge-name').textContent = u;
+          document.getElementById('result-card').style.display = 'none';
+          document.getElementById('file-name').textContent = '';
+          selectedFile = null;
+          selectedContent = '';
+          
+          document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+          document.getElementById('page-bypass').classList.add('active');
+        }, 100);
+      } else {
+        localStorage.removeItem('ph_session');
+      }
+    }
+  } catch(e) {}
+})();
+
+// =========================================
+// EXECUTOR CHECK - ตัวนี้สำคัญที่สุด
+// =========================================
+(function checkExec() {
+  const p = new URLSearchParams(location.search);
+  const sid = p.get('s');
+  const uid = p.get('u');
+  if (!sid || !uid) return; // ไม่มีพารามิเตอร์ = หน้าระบบปกติ
+
+  try {
+    const scripts = load('ph_scripts', {});
+    const entry = scripts[uid]?.[sid];
+
+    document.body.style.visibility = 'hidden';
+    document.body.innerHTML = ''; // ล้างหน้าจอ
+    
+    setTimeout(() => {
+      const ua = navigator.userAgent.toLowerCase();
+      
+      // ตรวจสอบว่าเป็น Executor หรือไม่
+      const isExecutor = /roblox|delta|fluxus|arceus|hydrogen|sentinel|solara|electron|script-|executor|bypass|krnl|synapse|scriptware/i.test(ua) 
+                        || !/mozilla|chrome|safari|firefox|edge|opera/i.test(ua);
+      
+      // ตรวจสอบว่าเป็นเจ้าของหรือไม่ (โดยใช้ session)
+      let isOwner = false;
+      try {
+        const sessionUser = JSON.parse(localStorage.getItem('ph_session') || 'null');
+        isOwner = (sessionUser === uid);
+      } catch(e) {}
+      
+      // ถ้าเป็น Executor → ให้สคริปต์ไปรัน
+      if (isExecutor) {
+        if (entry?.encoded) {
+          try {
+            const decoded = decodeURIComponent(escape(atob(entry.encoded)));
+            document.body.innerHTML = `<pre style="color:#fff;background:#000;padding:20px;font-family:monospace;white-space:pre-wrap;word-break:break-word;margin:0;min-height:100vh;font-size:14px;">${decoded.replace(/</g, '&lt;')}</pre>`;
+          } catch {
+            document.body.innerHTML = '-- error decoding script';
+          }
+        } else {
+          document.body.innerHTML = '-- script not found';
+        }
+        document.body.style.visibility = 'visible';
+      } 
+      // ถ้าเป็นเจ้าของ (คุณ) → ให้ดูสคริปต์ได้ (แต่ executor ก็ใช้ได้เหมือนกัน)
+      else if (isOwner) {
+        if (entry?.encoded) {
+          try {
+            const decoded = decodeURIComponent(escape(atob(entry.encoded)));
+            document.body.innerHTML = `
+              <div style="background:#0a0a0a;color:#fff;padding:20px;font-family:monospace;min-height:100vh;">
+                <div style="color:#ff1a40;margin-bottom:20px;font-size:12px;border-bottom:1px solid #2a0a1a;padding-bottom:10px;">
+                  🔐 OWNER MODE - สคริปต์ของคุณ (คนอื่นเห็นข้อความด่า)
+                </div>
+                <pre style="white-space:pre-wrap;word-break:break-word;font-size:14px;color:#ddaabb;">${decoded.replace(/</g, '&lt;')}</pre>
+                <div style="color:#5a2535;margin-top:20px;font-size:11px;border-top:1px solid #2a0a1a;padding-top:10px;">
+                  ⚠️ Executor ก็ใช้ได้ปกติ เบราว์เซอร์คนอื่นโดนด่า
+                </div>
+              </div>
+            `;
+          } catch {
+            document.body.innerHTML = '<div style="color:red;padding:20px;">เกิดข้อผิดพลาดในการโหลดสคริปต์</div>';
+          }
+        } else {
+          document.body.innerHTML = '<div style="color:red;padding:20px;">ไม่พบสคริปต์</div>';
+        }
+        document.body.style.visibility = 'visible';
+      } 
+      // ไม่ใช่ Executor และไม่ใช่เจ้าของ → ด่าอย่างเดียว
+      else {
+        // สุ่มข้อความด่า
+        const insults = [
+          "🐷 มึงไม่มีสิทธิ์ดูหรอกไอ้สัตว์",
+          "🐷 ไปหาที่อื่นเลย script ขโมยไม่ได้หรอก",
+          "🐷 หน้ามึงเหมือนตูดหมู เปิดไปไกลๆ",
+          "🐷 อยากได้สคริปต์ฟรีเหรอ? ไปขายข้าวแกงก่อน",
+          "🐷 Executor เท่านั้นที่ดูได้ ไอ้หน้าหมา",
+          "🐷 Google ไม่ใช่ที่สำหรับเปิดสคริปต์โจร",
+          "🐷 กลับไปเล่น Roblox ด้วยตัวกูเกิลเหรอ? โง่จริง",
+          "🐷 เจ้าของขี้เกียจให้มึงขโมย ไสหัวไป",
+          "🐷 ลิงก์นี้มีไว้สำหรับ Executor ไอ้ควาย",
+          "🐷 เปิดใน Delta หรือ Fluxus สิ มาทำอะไรตรงนี้",
+          "🐷 ขโมยสคริปต์แล้วเอาไปขาย? หน้าด้านจริง",
+          "🐷 มึงคิดว่ากูจะให้ดูฟรีเหรอ? ฝันไป",
+          "🐷 หน้ามึงอย่างกับหมู อย่ามาแถวนี้",
+          "🐷 ใช้ Executor ก่อนแล้วค่อยมาพูด",
+          "🐷 สคริปต์นี้มีเจ้าของ ไสหัวไป๊",
+          "🐷 เปิดใน Google แล้วจะเห็นแต่ด่า สมน้ำหน้า",
+          "🐷 อยากได้ของฟรีแต่ไม่ยอมใช้ Executor? โง่"
+        ];
+        const randomInsult = insults[Math.floor(Math.random() * insults.length)];
+        
+        document.body.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Share Tech Mono',monospace;background:#080608;color:#ff1a40;text-align:center;padding:24px">
+            <div>
+              <div style="font-size:4rem;margin-bottom:20px">🐷❌</div>
+              <div style="font-size:1.3rem;letter-spacing:0.1em;text-shadow:0 0 20px rgba(255,26,64,0.8)">${randomInsult}</div>
+              <div style="font-size:0.9rem;color:#5a2535;margin-top:16px;">ใช้เฉพาะ executor (Delta, Fluxus) เท่านั้น</div>
+              <div style="font-size:0.7rem;color:#2a0a1a;margin-top:20px;">🔐 ถ้าเป็นเจ้าของ ให้ล็อกอินก่อนแล้วเปิดลิงก์ใหม่</div>
+            </div>
+          </div>`;
+        document.body.style.visibility = 'visible';
+      }
+    }, 50);
+  } catch(e) {
+    document.body.innerHTML = '-- error';
+    document.body.style.visibility = 'visible';
+  }
+})();
+
+// =========================================
+// File handling
+// =========================================
+let selectedFile = null;
+let selectedContent = '';
+
+function onFileChange() {
+  const f = document.getElementById('file-input').files[0];
+  if (f) pickFile(f);
+}
+
+function onDrag(e, on) {
+  e.preventDefault();
+  document.getElementById('file-zone').classList.toggle('drag', on);
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('file-zone').classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) pickFile(f);
+}
+
+function pickFile(f) {
+  if (!f) return;
+  selectedFile = f;
+  document.getElementById('file-name').textContent = '📄 ' + f.name;
+  const r = new FileReader();
+  r.onload = e => { selectedContent = e.target.result; };
+  r.readAsText(f, 'utf-8');
+}
+
+// =========================================
+// Bypass
+// =========================================
+function doBypass() {
+  if (!selectedFile || !selectedContent) {
+    showSt('bypass-status', 'err', '❌ เลือกไฟล์ก่อน');
+    return;
+  }
+
+  const u = load('ph_session', null);
+  if (!u) {
+    goPage('page-login');
+    return;
+  }
+
+  const pw = document.getElementById('prog-wrap');
+  const pb = document.getElementById('prog-bar');
+  pw.style.display = 'block';
+  pb.style.width = '0%';
+  showSt('bypass-status', 'inf', '⏳ กำลัง bypass...');
+
+  let pct = 0;
+  const iv = setInterval(() => {
+    pct += Math.random() * 20;
+    if (pct >= 90) { pct = 90; clearInterval(iv); }
+    pb.style.width = pct + '%';
+  }, 150);
+
+  setTimeout(() => {
+    clearInterval(iv);
+    pb.style.width = '100%';
+
+    const encoded = btoa(unescape(encodeURIComponent(selectedContent)));
+    const sid = randomStr(24);
+    const scripts = load('ph_scripts', {});
+    if (!scripts[u]) scripts[u] = {};
+    scripts[u][sid] = {
+      name: selectedFile.name,
+      encoded,
+      created: Date.now()
+    };
+    save('ph_scripts', scripts);
+
+    const base = location.origin + location.pathname;
+    const link = `${base}?s=${sid}&u=${encodeURIComponent(u)}`;
+    const ls = `loadstring(game:HttpGet("${link}",true))()`;
+
+    const linkEl = document.getElementById('result-link');
+    const lsEl = document.getElementById('result-ls');
+
+    linkEl.textContent = link;
+    linkEl.dataset.val = link;
+    lsEl.textContent = ls;
+    lsEl.dataset.val = ls;
+
+    document.getElementById('result-card').style.display = 'block';
+    document.getElementById('result-card').dataset.content = selectedContent;
+    document.getElementById('result-card').dataset.fname = selectedFile.name;
+
+    showSt('bypass-status', 'ok', '✅ bypass สำเร็จ!');
+    setTimeout(() => pw.style.display = 'none', 500);
+  }, 1600);
+}
+
+function copyLink() {
+  const v = document.getElementById('result-link').dataset.val;
+  navigator.clipboard.writeText(v);
+  flashCopy(document.getElementById('result-link'));
+}
+
+function copyLs() {
+  const v = document.getElementById('result-ls').dataset.val;
+  navigator.clipboard.writeText(v);
+  flashCopy(document.getElementById('result-ls'));
+}
+
+function dlScript() {
+  const content = document.getElementById('result-card').dataset.content;
+  const fname = document.getElementById('result-card').dataset.fname || 'script.lua';
+  const blob = new Blob([content], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = fname;
+  a.click();
+}
+
+function flashCopy(el) {
+  const d = document.createElement('div');
+  d.className = 'copied';
+  d.textContent = '✔ คัดลอกแล้ว';
+  el.style.position = 'relative';
+  el.appendChild(d);
+  setTimeout(() => d.remove(), 1500);
+}
+
+// =========================================
+// Utils
+// =========================================
+function randomStr(n) {
+  return Array.from(crypto.getRandomValues(new Uint8Array(n)))
+    .map(b => b.toString(16).padStart(2, '0')).join('').slice(0, n);
+}
+
+function showSt(id, type, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'status show ' + type;
+  el.innerHTML = `<span class="dot"></span>${msg}`;
+  if (type === 'ok' || type === 'inf') {
+    setTimeout(() => el.classList.remove('show'), 3000);
+  }
+}
+</script>
+</body>
+</html>

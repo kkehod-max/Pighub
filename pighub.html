@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PIG HUB</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@400;600&display=swap');
+
+:root {
+  --bg: #080608;
+  --panel: #0f080f;
+  --border: #2a0a1a;
+  --red: #ff1a40;
+  --red2: #ff5070;
+  --dim: #5a2535;
+  --text: #ddaabb;
+  --glow: 0 0 24px rgba(255,26,64,0.5);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+}
+
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(255,26,64,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,26,64,0.04) 1px, transparent 1px);
+  background-size: 36px 36px;
+  pointer-events:none;
+  z-index:0;
+}
+
+body::after {
+  content:'';
+  position:fixed;
+  top:0; left:50%;
+  transform:translateX(-50%);
+  width:700px; height:300px;
+  background: radial-gradient(ellipse at top, rgba(255,26,64,0.1), transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.page { display:none; position:relative; z-index:1; width:100%; max-width:520px; }
+.page.active { display:flex; flex-direction:column; align-items:center; }
+
+/* ===== LOGO ===== */
+.logo {
+  font-family:'Teko',sans-serif;
+  font-size:4.5rem;
+  font-weight:600;
+  letter-spacing:0.2em;
+  color: var(--red);
+  text-shadow: 0 0 30px rgba(255,26,64,0.9), 0 0 60px rgba(255,26,64,0.4);
+  margin-bottom:4px;
+  text-align:center;
+}
+
+.sub {
+  font-size:0.62rem;
+  color: var(--dim);
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  margin-bottom:36px;
+  text-align:center;
+}
+
+/* ===== CARD ===== */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius:3px;
+  padding:22px;
+  width:100%;
+  position:relative;
+  overflow:hidden;
+  margin-bottom:14px;
+}
+
+.card::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;
+  width:3px;height:100%;
+  background:linear-gradient(180deg,var(--red),transparent);
+}
+
+.card::after {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,var(--red),transparent);
+}
+
+.card-title {
+  font-size:0.65rem;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:var(--dim);
+  margin-bottom:16px;
+}
+
+/* ===== INPUTS ===== */
+.field { margin-bottom:14px; }
+.field label {
+  display:block;
+  font-size:0.6rem;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--dim);
+  margin-bottom:6px;
+}
+
+input[type=text], input[type=password], input[type=email] {
+  width:100%;
+  background:#06040a;
+  border:1px solid var(--border);
+  border-radius:2px;
+  color:var(--text);
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.78rem;
+  padding:10px 12px;
+  outline:none;
+  transition:all 0.2s;
+}
+
+input:focus {
+  border-color:var(--red);
+  box-shadow:var(--glow);
+  color:#fff;
+}
+
+/* file input */
+.file-zone {
+  width:100%;
+  border:1px dashed var(--border);
+  border-radius:2px;
+  padding:28px;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s;
+  background:#06040a;
+}
+
+.file-zone:hover, .file-zone.drag { border-color:var(--red); box-shadow:var(--glow); }
+.file-zone input { display:none; }
+.file-zone .ficon { font-size:2rem; margin-bottom:8px; }
+.file-zone .ftxt { font-size:0.7rem; color:var(--dim); letter-spacing:0.1em; }
+.file-zone .fname { font-size:0.75rem; color:var(--red2); margin-top:6px; }
+
+/* ===== BUTTONS ===== */
+.btn {
+  width:100%;
+  padding:12px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.75rem;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  border:1px solid var(--red);
+  background:transparent;
+  color:var(--red);
+  cursor:pointer;
+  border-radius:2px;
+  transition:all 0.2s;
+  margin-top:4px;
+}
+
+.btn:hover {
+  background:var(--red);
+  color:#000;
+  box-shadow:var(--glow);
+}
+
+.btn-sm {
+  width:auto;
+  padding:8px 18px;
+  font-size:0.68rem;
+  margin-top:0;
+}
+
+.btn-ghost {
+  border-color:var(--dim);
+  color:var(--dim);
+}
+.btn-ghost:hover { background:var(--dim); color:#000; box-shadow:none; }
+
+/* ===== STATUS ===== */
+.status {
+  display:none;
+  align-items:center;
+  gap:6px;
+  font-size:0.62rem;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  padding:8px 12px;
+  border-radius:2px;
+  margin-top:10px;
+  width:100%;
+}
+.status.show { display:flex; }
+.status.ok  { color:#00ff88; background:rgba(0,255,136,0.07); border:1px solid rgba(0,255,136,0.2); }
+.status.err { color:var(--red); background:rgba(255,26,64,0.08); border:1px solid rgba(255,26,64,0.25); }
+.status.inf { color:var(--red2); background:rgba(255,80,112,0.08); border:1px solid rgba(255,80,112,0.2); }
+
+.dot { width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; animation:blink 1.2s infinite; }
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+/* ===== LINK BOX ===== */
+.link-box {
+  width:100%;
+  background:#06040a;
+  border:1px solid var(--border);
+  border-radius:2px;
+  padding:12px;
+  font-size:0.72rem;
+  color:var(--red2);
+  word-break:break-all;
+  line-height:1.7;
+  margin-bottom:10px;
+  position:relative;
+}
+
+.ls-box {
+  width:100%;
+  background:#06040a;
+  border:1px solid var(--red);
+  border-radius:2px;
+  padding:14px;
+  font-size:0.75rem;
+  color:#fff;
+  word-break:break-all;
+  line-height:1.8;
+  margin-bottom:10px;
+  box-shadow: 0 0 12px rgba(255,26,64,0.2);
+}
+
+.row { display:flex; gap:8px; margin-top:8px; }
+
+.divider {
+  width:100%;
+  text-align:center;
+  font-size:0.6rem;
+  color:var(--dim);
+  letter-spacing:0.2em;
+  margin:8px 0 14px;
+  position:relative;
+}
+.divider::before, .divider::after {
+  content:'';
+  position:absolute;
+  top:50%; width:40%;
+  height:1px;
+  background:var(--border);
+}
+.divider::before { left:0; }
+.divider::after { right:0; }
+
+.link-go {
+  display:block;
+  text-align:center;
+  font-size:0.65rem;
+  color:var(--dim);
+  cursor:pointer;
+  margin-top:10px;
+  letter-spacing:0.1em;
+  text-decoration:underline;
+}
+.link-go:hover { color:var(--red2); }
+
+.copied {
+  position:absolute;
+  top:6px; right:8px;
+  font-size:0.58rem;
+  color:#00ff88;
+  letter-spacing:0.15em;
+  animation:fo 1.4s forwards;
+}
+@keyframes fo{0%{opacity:1}70%{opacity:1}100%{opacity:0}}
+
+/* progress */
+.progress-wrap { width:100%; height:4px; background:var(--border); border-radius:2px; margin:12px 0; overflow:hidden; }
+.progress-bar { height:100%; background:var(--red); width:0%; transition:width 0.3s; box-shadow:var(--glow); }
+
+/* user info */
+.user-badge {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:0.7rem;
+  color:var(--dim);
+  margin-bottom:20px;
+}
+.user-badge span { color:var(--red2); }
+
+@media(max-width:480px){
+  .logo{font-size:3.2rem;}
+  .btn{font-size:0.7rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== PAGE: REGISTER ===== -->
+<div class="page active" id="page-register">
+  <div class="logo">PIG HUB</div>
+  <div class="sub">Script Protection System</div>
+
+  <div class="card" style="width:100%">
+    <div class="card-title">สมัครใช้งาน</div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="reg-user" placeholder="ชื่อผู้ใช้..." maxlength="20" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="reg-pass" placeholder="รหัสผ่าน..." />
+    </div>
+    <div class="field">
+      <label>Confirm Password</label>
+      <input type="password" id="reg-pass2" placeholder="ยืนยันรหัสผ่าน..." />
+    </div>
+    <button class="btn" onclick="doRegister()">สมัครใช้งาน</button>
+    <div class="status" id="reg-status"></div>
+    <div class="divider">หรือ</div>
+    <button class="btn btn-ghost" onclick="goPage('page-login')">เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<!-- ===== PAGE: LOGIN ===== -->
+<div class="page" id="page-login">
+  <div class="logo">PIG HUB</div>
+  <div class="sub">Script Protection System</div>
+
+  <div class="card" style="width:100%">
+    <div class="card-title">เข้าสู่ระบบ</div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="ชื่อผู้ใช้..." />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="รหัสผ่าน..." />
+    </div>
+    <button class="btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="status" id="login-status"></div>
+    <div class="divider">หรือ</div>
+    <button class="btn btn-ghost" onclick="goPage('page-register')">สมัครใช้งาน</button>
+  </div>
+</div>
+
+<!-- ===== PAGE: BYPASS ===== -->
+<div class="page" id="page-bypass">
+  <div class="logo">PIG HUB</div>
+  <div class="sub">Bypass & Protect</div>
+
+  <div class="user-badge" id="user-badge">ยินดีต้อนรับ, <span id="badge-name">-</span></div>
+
+  <div class="card" style="width:100%">
+    <div class="card-title">อัปโหลดไฟล์สคริป</div>
+    <label class="file-zone" id="file-zone" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
+      <input type="file" id="file-input" accept=".lua,.txt" onchange="onFileChange()" />
+      <div class="ficon">📁</div>
+      <div class="ftxt">กดเลือกไฟล์ หรือลากไฟล์มาวาง</div>
+      <div class="ftxt">รองรับ .lua และ .txt</div>
+      <div class="fname" id="file-name"></div>
+    </label>
+
+    <div class="progress-wrap" id="prog-wrap" style="display:none">
+      <div class="progress-bar" id="prog-bar"></div>
+    </div>
+
+    <button class="btn" style="margin-top:14px" onclick="doBypass()">⚡ Bypass & Generate Link</button>
+    <div class="status" id="bypass-status"></div>
+  </div>
+
+  <div class="card" id="result-card" style="display:none;width:100%">
+    <div class="card-title">✅ Bypass สำเร็จ</div>
+
+    <div style="font-size:0.62rem;color:var(--dim);letter-spacing:0.15em;margin-bottom:6px">PROTECTED LINK</div>
+    <div class="link-box" id="result-link"></div>
+    <div class="row">
+      <button class="btn btn-sm" onclick="copyLink()">Copy Link</button>
+      <button class="btn btn-sm btn-ghost" onclick="dlScript()">Download .lua</button>
+    </div>
+
+    <div style="height:14px"></div>
+    <div style="font-size:0.62rem;color:var(--dim);letter-spacing:0.15em;margin-bottom:6px">LOADSTRING (วางใน executor)</div>
+    <div class="ls-box" id="result-ls"></div>
+    <button class="btn btn-sm" onclick="copyLs()">Copy Loadstring</button>
+
+    <div style="margin-top:16px;font-size:0.65rem;color:var(--dim);line-height:1.8;padding:10px;border:1px solid var(--border);border-radius:2px;background:rgba(255,26,64,0.03)">
+      ⚠ คนอื่นที่เปิดลิงค์ด้วยเบราว์เซอร์จะเห็นแค่ข้อความด่า<br>
+      ✅ Delta และ executor อื่นๆ ของมือถือใช้ได้ปกติ
+    </div>
+  </div>
+
+  <span class="link-go" onclick="doLogout()">ออกจากระบบ</span>
+</div>
+
+<!-- ===== PAGE: SCRIPT (สำหรับ executor ดึงโค้ด) ===== -->
+<div class="page" id="page-script">
+  <!-- จงไม่แสดงอะไรเลย — JS จะ handle -->
+</div>
+
+<script>
+// =========================================
+// Storage helpers
+// =========================================
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function load(k,d){try{const r=JSON.parse(localStorage.getItem(k));return r===null?d:r}catch{return d}}
+
+// =========================================
+// Page router
+// =========================================
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// =========================================
+// Check URL params first (executor request)
+// =========================================
+(function checkExec(){
+  const p=new URLSearchParams(location.search);
+  const sid=p.get('s');
+  const uid=p.get('u');
+  if(!sid||!uid) return; // normal visit
+
+  // ตรวจว่ามาจาก executor (User-Agent ไม่ใช่เบราว์เซอร์ปกติ)
+  // ใน static HTML ทำได้แค่ redirect — executor follow redirect แล้วได้โค้ด
+  // เบราว์เซอร์ก็ follow redirect แต่เราจะแสดงหน้าด่าแทน
+  const scripts=load('ph_scripts',{});
+  const entry=scripts[uid] && scripts[uid][sid];
+
+  // ซ่อน body ก่อน render
+  document.body.style.visibility='hidden';
+  setTimeout(()=>{
+    const ua=navigator.userAgent.toLowerCase();
+    // ถ้า user agent มีคำที่ไม่ใช่ executor จะโดนด่า
+    // executor มือถือ (delta, fluxus, arceus) มักไม่มี mozilla/chrome
+    const isBrowser = /mozilla|chrome|safari|firefox|edge|opera/.test(ua) && !/roblox/.test(ua);
+
+    if(isBrowser){
+      // โชว์ด่า
+      document.body.innerHTML=`
+        <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Share Tech Mono',monospace;background:#080608;color:#ff1a40;text-align:center;padding:20px">
+          <div>
+            <div style="font-size:3rem;margin-bottom:16px">🐷</div>
+            <div style="font-size:1.2rem;letter-spacing:0.1em;text-shadow:0 0 20px rgba(255,26,64,0.8)">มึงไม่มีสิทธิ์ดูหรอกไอ้สัตว์</div>
+            <div style="font-size:0.7rem;color:#5a2535;margin-top:12px;letter-spacing:0.15em">ไปห่าที่อื่นเลย script ขโมยไม่ได้หรอก</div>
+          </div>
+        </div>`;
+      document.body.style.visibility='visible';
+    } else {
+      // executor — redirect ไปโค้ดจริง
+      if(entry && entry.url){
+        window.location.replace(entry.url);
+      } else {
+        document.body.innerHTML='-- script not found';
+        document.body.style.visibility='visible';
+      }
+    }
+  },50);
+})();
+
+// =========================================
+// Auth
+// =========================================
+function doRegister(){
+  const u=document.getElementById('reg-user').value.trim();
+  const p=document.getElementById('reg-pass').value;
+  const p2=document.getElementById('reg-pass2').value;
+  if(!u||!p){showSt('reg-status','err','กรอกให้ครบ');return;}
+  if(p!==p2){showSt('reg-status','err','รหัสผ่านไม่ตรงกัน');return;}
+  if(u.length<3){showSt('reg-status','err','Username ต้องยาวกว่า 3 ตัว');return;}
+  const users=load('ph_users',{});
+  if(users[u]){showSt('reg-status','err','Username นี้มีแล้ว');return;}
+  users[u]={pw:btoa(p),created:Date.now()};
+  save('ph_users',users);
+  save('ph_session',u);
+  showSt('reg-status','ok','สมัครสำเร็จ กำลังเข้า...');
+  setTimeout(()=>enterDashboard(u),800);
+}
+
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value;
+  if(!u||!p){showSt('login-status','err','กรอกให้ครบ');return;}
+  const users=load('ph_users',{});
+  if(!users[u]||users[u].pw!==btoa(p)){showSt('login-status','err','Username หรือรหัสผ่านไม่ถูกต้อง');return;}
+  save('ph_session',u);
+  showSt('login-status','ok','เข้าสู่ระบบสำเร็จ...');
+  setTimeout(()=>enterDashboard(u),600);
+}
+
+function doLogout(){
+  localStorage.removeItem('ph_session');
+  goPage('page-login');
+}
+
+function enterDashboard(u){
+  document.getElementById('badge-name').textContent=u;
+  document.getElementById('result-card').style.display='none';
+  document.getElementById('file-name').textContent='';
+  selectedFile=null;
+  goPage('page-bypass');
+}
+
+// ===== auto login =====
+(function autoLogin(){
+  const s=load('ph_session',null);
+  if(s){
+    const users=load('ph_users',{});
+    if(users[s]){enterDashboard(s);return;}
+  }
+})();
+
+// =========================================
+// File handling
+// =========================================
+let selectedFile=null;
+let selectedContent='';
+
+function onFileChange(){
+  const f=document.getElementById('file-input').files[0];
+  if(f) pickFile(f);
+}
+
+function onDrag(e,on){
+  e.preventDefault();
+  document.getElementById('file-zone').classList.toggle('drag',on);
+}
+
+function onDrop(e){
+  e.preventDefault();
+  document.getElementById('file-zone').classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f) pickFile(f);
+}
+
+function pickFile(f){
+  selectedFile=f;
+  document.getElementById('file-name').textContent='📄 '+f.name;
+  const r=new FileReader();
+  r.onload=e=>{ selectedContent=e.target.result; };
+  r.readAsText(f,'utf-8');
+}
+
+// =========================================
+// Bypass & generate
+// =========================================
+function doBypass(){
+  if(!selectedFile||!selectedContent){
+    showSt('bypass-status','err','เลือกไฟล์ก่อนนะ');return;
+  }
+
+  const u=load('ph_session',null);
+  if(!u){goPage('page-login');return;}
+
+  // progress anim
+  const pw=document.getElementById('prog-wrap');
+  const pb=document.getElementById('prog-bar');
+  pw.style.display='block'; pb.style.width='0%';
+  showSt('bypass-status','inf','กำลัง bypass...');
+
+  let pct=0;
+  const iv=setInterval(()=>{
+    pct+=Math.random()*18;
+    if(pct>=95){pct=95;clearInterval(iv);}
+    pb.style.width=pct+'%';
+  },120);
+
+  setTimeout(()=>{
+    clearInterval(iv);
+    pb.style.width='100%';
+
+    // encode content
+    const encoded=btoa(unescape(encodeURIComponent(selectedContent)));
+    const sid=randomStr(32);
+    const scripts=load('ph_scripts',{});
+    if(!scripts[u]) scripts[u]={};
+    scripts[u][sid]={
+      name:selectedFile.name,
+      encoded,
+      created:Date.now()
+    };
+    save('ph_scripts',scripts);
+
+    // generate link
+    const base=location.origin+location.pathname;
+    const link=`${base}?s=${sid}&u=${encodeURIComponent(u)}`;
+    const ls=`loadstring(game:HttpGet("${link}",true))()`;
+
+    document.getElementById('result-link').textContent=link;
+    document.getElementById('result-link').dataset.val=link;
+    document.getElementById('result-ls').textContent=ls;
+    document.getElementById('result-ls').dataset.val=ls;
+    document.getElementById('result-card').style.display='block';
+
+    // store for download
+    document.getElementById('result-card').dataset.content=selectedContent;
+    document.getElementById('result-card').dataset.fname=selectedFile.name;
+
+    showSt('bypass-status','ok','Bypass สำเร็จ!');
+    setTimeout(()=>pw.style.display='none',600);
+  },1800);
+}
+
+function copyLink(){
+  const v=document.getElementById('result-link').dataset.val;
+  navigator.clipboard.writeText(v);
+  flashCopy(document.getElementById('result-link'));
+}
+
+function copyLs(){
+  const v=document.getElementById('result-ls').dataset.val;
+  navigator.clipboard.writeText(v);
+  flashCopy(document.getElementById('result-ls'));
+}
+
+function dlScript(){
+  const content=document.getElementById('result-card').dataset.content;
+  const fname=document.getElementById('result-card').dataset.fname||'script.lua';
+  const blob=new Blob([content],{type:'text/plain'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=fname;
+  a.click();
+}
+
+function flashCopy(el){
+  const d=document.createElement('div');
+  d.className='copied';d.textContent='COPIED';
+  el.style.position='relative';
+  el.appendChild(d);
+  setTimeout(()=>d.remove(),1600);
+}
+
+// =========================================
+// Utils
+// =========================================
+function randomStr(n){
+  return Array.from(crypto.getRandomValues(new Uint8Array(n)))
+    .map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,n);
+}
+
+function showSt(id,type,msg){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.className='status show '+type;
+  el.innerHTML=`<span class="dot"></span>${msg}`;
+  if(type==='ok'||type==='inf') setTimeout(()=>el.classList.remove('show'),3500);
+}
+</script>
+</body>
+</html>

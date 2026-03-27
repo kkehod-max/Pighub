@@ -1215,7 +1215,11 @@ local function getCharacterBounds(character)
     }
 end
 
-RunService.RenderStepped:Connect(function()
+local _lastBoxESP = 0
+RunService.Heartbeat:Connect(function()
+    local now = tick()
+    if now - _lastBoxESP < 0.05 then return end
+    _lastBoxESP = now
     if not ShowBoxESP then
         for _,espData in pairs(PlayerBoxESP) do
             if espData and espData.box then for _,line in pairs(espData.box) do line.Visible=false end end
@@ -1285,7 +1289,11 @@ local function removeNameESP(player)
     PlayerNameESP[player]=nil
 end
 
-RunService.RenderStepped:Connect(function()
+local _lastNameESP = 0
+RunService.Heartbeat:Connect(function()
+    local now = tick()
+    if now - _lastNameESP < 0.05 then return end
+    _lastNameESP = now
     if not ShowNameESP then
         for _,espData in pairs(PlayerNameESP) do
             if espData and espData.display then espData.display.Visible=false end
@@ -1388,16 +1396,22 @@ local function buildBillboard(player)
     if not hrp then return end
     if ItemBillboards[player] then ItemBillboards[player]:Destroy() ItemBillboards[player]=nil end
     local tools={}
+    local function isFistsOrUnwanted(t)
+        if t.Name == "Fists" then return true end
+        local dn = (t:GetAttribute("DisplayName") or t.Name):lower()
+        if dn == "fists" or dn == "หมัด" then return true end
+        return false
+    end
     for _,slot in ipairs({"Backpack","StarterGear","StarterPack"}) do
         local bag=player:FindFirstChild(slot)
         if bag then
             for _,t in ipairs(bag:GetChildren()) do 
-                if t:IsA("Tool") and t.Name~="Fists" then table.insert(tools,t) end
+                if t:IsA("Tool") and not isFistsOrUnwanted(t) then table.insert(tools,t) end
             end
         end
     end
     for _,t in ipairs(char:GetChildren()) do 
-        if t:IsA("Tool") and t.Name~="Fists" then table.insert(tools,t) end
+        if t:IsA("Tool") and not isFistsOrUnwanted(t) then table.insert(tools,t) end
     end
     if #tools == 0 then return end
     local bb=Instance.new("BillboardGui")
@@ -1435,18 +1449,6 @@ local function buildBillboard(player)
             tip.TextScaled=true
             tip.Font=Enum.Font.GothamBold
             tip.TextColor3=rarityColor
-        else
-            local lbl=Instance.new("TextLabel",bb)
-            lbl.Size=UDim2.new(0,math.max(50,#displayName*7),0,18)
-            lbl.BackgroundColor3=Color3.fromRGB(15,15,25)
-            lbl.BackgroundTransparency=0.2
-            lbl.Text=displayName
-            lbl.TextScaled=true
-            lbl.Font=Enum.Font.GothamBold
-            lbl.TextColor3=rarityColor
-            Instance.new("UICorner",lbl).CornerRadius=UDim.new(0,4)
-            local stroke=Instance.new("UIStroke",lbl)
-            stroke.Color=rarityColor stroke.Thickness=1.5
         end
     end
     ItemBillboards[player]=bb
@@ -1617,7 +1619,7 @@ end)
 PlayerTab:Divider()
 PlayerTab:Section({Title = "MOVEMENT"})
 PlayerTab:Toggle({Title = "Walk Speed", Default = false, Callback = function(state) walkSpeedEnabled = state end})
-PlayerTab:Slider({Title = "Speed Value", Step = 0.01, Value = {Min = 0.01, Max = 0.10, Default = 0.05}, Callback = function(v) speedValue = v end})
+PlayerTab:Slider({Title = "Speed Value", Step = 0.01, Value = {Min = 0.01, Max = 2, Default = 0.05}, Callback = function(v) speedValue = v end})
 
 PlayerTab:Divider()
 PlayerTab:Section({Title = "INFINITE STAMINA"})
@@ -2123,7 +2125,8 @@ task.spawn(function()
     task.wait(1)
     pcall(function()
         local hue = 0
-        RunService.RenderStepped:Connect(function()
+        while true do
+            task.wait(0.05)
             hue = (hue + 0.003) % 1
             if Window and Window.SideBar then
                 for _, obj in ipairs(Window.SideBar:GetDescendants()) do
@@ -2135,7 +2138,7 @@ task.spawn(function()
                     end
                 end
             end
-        end)
+        end
     end)
 end)
 

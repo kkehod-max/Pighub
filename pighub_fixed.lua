@@ -754,17 +754,15 @@ workspace.DroppedItems.ChildAdded:Connect(resizeZones)
 
 local function startMagnet()
     if magnetConnection then magnetConnection:Disconnect() end
-    local _lastMagnet = 0
     magnetConnection = RunService.Heartbeat:Connect(function()
         if not magnetEnabled then return end
-        local now = tick()
-        if now - _lastMagnet < 0.05 then return end
-        _lastMagnet = now
         local char = LocalPlayer.Character
         if not char then return end
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
         for _, item in pairs(workspace.DroppedItems:GetChildren()) do
+            local prompt = item:FindFirstChildWhichIsA("ProximityPrompt", true)
+            if not prompt then continue end
             local dist = (hrp.Position - item.Position).Magnitude
             if dist <= SERVER_FAKE_RADIUS then
                 pcall(function() remoteGet:InvokeServer("pickup_dropped_item", item) end)
@@ -1184,41 +1182,31 @@ end
 
 local function getCharacterBounds(character)
     if not character then return nil end
-    local minX,maxX=math.huge,-math.huge
-    local minY,maxY=math.huge,-math.huge
-    for _,part in pairs(character:GetChildren()) do
-        if part:IsA("BasePart") then
-            local pos,visible=Camera:WorldToViewportPoint(part.Position)
-            if visible then
-                minX=math.min(minX,pos.X) maxX=math.max(maxX,pos.X)
-                minY=math.min(minY,pos.Y) maxY=math.max(maxY,pos.Y)
-            end
-        end
-    end
-    if minX==math.huge then
-        local hrp=character:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            local pos,visible=Camera:WorldToViewportPoint(hrp.Position)
-            if visible then
-                local size=30
-                minX=pos.X-size maxX=pos.X+size
-                minY=pos.Y-size*1.5 maxY=pos.Y+size*0.5
-            else return nil end
-        else return nil end
-    end
-    local padding=3
-    minX=minX-padding maxX=maxX+padding
-    minY=minY-padding maxY=maxY+padding
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    local head = character:FindFirstChild("Head")
+    if not hrp then return nil end
+    local topPart = head or hrp
+    local bot, botVisible = Camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
+    local top, topVisible = Camera:WorldToViewportPoint(topPart.Position + Vector3.new(0, 0.5, 0))
+    if not botVisible and not topVisible then return nil end
+    local refPos, refVis = Camera:WorldToViewportPoint(hrp.Position)
+    if not refVis then return nil end
+    local h = math.abs(top.Y - bot.Y)
+    local w = h * 0.55
+    local cx = refPos.X
+    local padding = 3
     return {
-        topLeft=Vector2.new(minX,minY),topRight=Vector2.new(maxX,minY),
-        bottomLeft=Vector2.new(minX,maxY),bottomRight=Vector2.new(maxX,maxY)
+        topLeft    = Vector2.new(cx - w - padding, top.Y - padding),
+        topRight   = Vector2.new(cx + w + padding, top.Y - padding),
+        bottomLeft = Vector2.new(cx - w - padding, bot.Y + padding),
+        bottomRight= Vector2.new(cx + w + padding, bot.Y + padding),
     }
 end
 
 local _lastBoxESP = 0
 RunService.Heartbeat:Connect(function()
     local now = tick()
-    if now - _lastBoxESP < 0.05 then return end
+    if now - _lastBoxESP < 0.1 then return end
     _lastBoxESP = now
     if not ShowBoxESP then
         for _,espData in pairs(PlayerBoxESP) do
@@ -1292,7 +1280,7 @@ end
 local _lastNameESP = 0
 RunService.Heartbeat:Connect(function()
     local now = tick()
-    if now - _lastNameESP < 0.05 then return end
+    if now - _lastNameESP < 0.1 then return end
     _lastNameESP = now
     if not ShowNameESP then
         for _,espData in pairs(PlayerNameESP) do
@@ -1465,7 +1453,41 @@ local function refreshAllBillboards()
     end
 end
 
+local function watchPlayerTools(player)
+    if player == LocalPlayer then return end
+    local function onToolChange()
+        task.wait(0.3)
+        if ShowItemESP then clearBillboard(player) buildBillboard(player) end
+    end
+    local function watchBag(bag)
+        if not bag then return end
+        bag.ChildAdded:Connect(onToolChange)
+        bag.ChildRemoved:Connect(onToolChange)
+    end
+    local function watchChar(char)
+        if not char then return end
+        char.ChildAdded:Connect(function(c) if c:IsA("Tool") then onToolChange() end end)
+        char.ChildRemoved:Connect(function(c) if c:IsA("Tool") then onToolChange() end end)
+    end
+    local bp = player:FindFirstChild("Backpack")
+    if bp then watchBag(bp) end
+    player.ChildAdded:Connect(function(c) if c:IsA("Backpack") then watchBag(c) end end)
+    if player.Character then watchChar(player.Character) end
+    player.CharacterAdded:Connect(function(char)
+        task.wait(1)
+        if ShowItemESP then buildBillboard(player) end
+        watchChar(char)
+    end)
+end
+
+task.spawn(function()
+    task.wait(2)
+    for _, player in ipairs(Players:GetPlayers()) do watchPlayerTools(player) end
+end)
+
 Players.PlayerAdded:Connect(function(player)
+    task.wait(1)
+    watchPlayerTools(player)
     player.CharacterAdded:Connect(function()
         task.wait(1)
         if ShowItemESP then buildBillboard(player) end
@@ -1479,44 +1501,6 @@ task.spawn(function()
     end
 end)
 
-task.spawn(function()
-    task.wait(2)
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player == LocalPlayer then continue end
-        local function watchBag(bag)
-            if not bag then return end
-            bag.ChildAdded:Connect(function()
-                task.wait(0.3)
-                if ShowItemESP then clearBillboard(player) buildBillboard(player) end
-            end)
-            bag.ChildRemoved:Connect(function()
-                task.wait(0.3)
-                if ShowItemESP then clearBillboard(player) buildBillboard(player) end
-            end)
-        end
-        local bp = player:FindFirstChild("Backpack")
-        if bp then watchBag(bp) end
-        player.ChildAdded:Connect(function(c) if c:IsA("Backpack") then watchBag(c) end end)
-        if player.Character then
-            player.Character.ChildAdded:Connect(function(c)
-                if c:IsA("Tool") then task.wait(0.3) if ShowItemESP then clearBillboard(player) buildBillboard(player) end end
-            end)
-            player.Character.ChildRemoved:Connect(function(c)
-                if c:IsA("Tool") then task.wait(0.3) if ShowItemESP then clearBillboard(player) buildBillboard(player) end end
-            end)
-        end
-        player.CharacterAdded:Connect(function(char)
-            task.wait(1)
-            char.ChildAdded:Connect(function(c)
-                if c:IsA("Tool") then task.wait(0.3) if ShowItemESP then clearBillboard(player) buildBillboard(player) end end
-            end)
-            char.ChildRemoved:Connect(function(c)
-                if c:IsA("Tool") then task.wait(0.3) if ShowItemESP then clearBillboard(player) buildBillboard(player) end end
-            end)
-        end)
-    end
-end)
-
 getgenv().ItemESPEnabled=false
 getgenv().ItemESPMaxDist=500
 
@@ -1526,6 +1510,8 @@ local RarityColors={
     Rare=Color3.fromRGB(0,150,255), Epic=Color3.fromRGB(180,50,255),
     Legendary=Color3.fromRGB(255,150,0), Omega=Color3.fromRGB(255,0,50)
 }
+
+local ItemColorCache = {}
 
 local function UpdateItemESP()
     if not getgenv().ItemESPEnabled then
@@ -1547,9 +1533,13 @@ local function UpdateItemESP()
             if not ItemESPDrawings[item] then ItemESPDrawings[item]={Dot=Drawing.new("Circle"),Label=Drawing.new("Text")} end
             local draw=ItemESPDrawings[item]
             if onScreen and dist<getgenv().ItemESPMaxDist then
-                local color=Color3.new(1,1,1)
-                local ok,template=pcall(function() return ReplicatedStorage.Items:FindFirstChild(item.Name,true) end)
-                if ok and template then color=RarityColors[template:GetAttribute("RarityName")] or color end
+                local color = ItemColorCache[item.Name]
+                if not color then
+                    color = Color3.new(1,1,1)
+                    local ok,template=pcall(function() return ReplicatedStorage.Items:FindFirstChild(item.Name,true) end)
+                    if ok and template then color=RarityColors[template:GetAttribute("RarityName")] or color end
+                    ItemColorCache[item.Name] = color
+                end
                 draw.Dot.Visible=true draw.Dot.Position=Vector2.new(pos.X,pos.Y)
                 draw.Dot.Radius=3 draw.Dot.Color=color
                 draw.Dot.Filled=true draw.Dot.Transparency=0.5
@@ -1567,7 +1557,7 @@ end
 local _lastItemESPUpdate = 0
 RunService.Heartbeat:Connect(function()
     local now = tick()
-    if now - _lastItemESPUpdate < 0.1 then return end
+    if now - _lastItemESPUpdate < 0.15 then return end
     _lastItemESPUpdate = now
     UpdateItemESP()
 end)
@@ -1723,6 +1713,39 @@ PlayerTab:Divider()
 PlayerTab:Section({Title = "ANTI LOOK"})
 PlayerTab:Toggle({Title = "Anti Look", Default = false, Callback = function(state) toggleAntiLook(state) end})
 PlayerTab:Slider({Title = "Strength", Step = 100, Value = {Min = 500, Max = 3500, Default = 3500}, Callback = function(v) getgenv().SkyAmount = v end})
+
+local ghostShakeEnabled = false
+local ghostShakeConn = nil
+
+local function startGhostShake()
+    if ghostShakeConn then ghostShakeConn:Disconnect() end
+    ghostShakeConn = RunService.Heartbeat:Connect(function()
+        if not ghostShakeEnabled then return end
+        local char = LocalPlayer.Character
+        if not char then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+        local realVel = hrp.AssemblyLinearVelocity
+        local rx = math.random(-1, 1) * math.random(800, 2000)
+        local ry = math.random(500, 3000)
+        local rz = math.random(-1, 1) * math.random(800, 2000)
+        pcall(function()
+            hrp.AssemblyLinearVelocity = Vector3.new(rx, ry, rz)
+        end)
+        RunService.RenderStepped:Wait()
+        pcall(function()
+            hrp.AssemblyLinearVelocity = realVel
+        end)
+    end)
+end
+
+PlayerTab:Toggle({Title = "Ghost Shake (คนอื่นเห็นสั่น)", Default = false, Callback = function(state)
+    ghostShakeEnabled = state
+    if state then startGhostShake()
+    else
+        if ghostShakeConn then ghostShakeConn:Disconnect() ghostShakeConn = nil end
+    end
+end})
 
 PlayerTab:Divider()
 PlayerTab:Section({Title = "กันตาย"})

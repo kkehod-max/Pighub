@@ -599,6 +599,25 @@ end
 
 task.spawn(setupBypass)
 
+local CLIENT_ZONE_SIZE = Vector3.new(120, 14, 120)
+local function resizeZones()
+    local dropped = workspace:FindFirstChild("DroppedItems")
+    if not dropped then return end
+    for _, item in pairs(dropped:GetChildren()) do
+        local zone = item:FindFirstChild("PickUpZone")
+        if zone and zone:IsA("BasePart") then
+            zone.Size = CLIENT_ZONE_SIZE
+            zone.Transparency = 1
+            zone.CanCollide = false
+            zone.Anchored = true
+        end
+    end
+end
+resizeZones()
+pcall(function()
+    workspace.DroppedItems.ChildAdded:Connect(function() task.wait(0.05) resizeZones() end)
+end)
+
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local Window = WindUI:CreateWindow({

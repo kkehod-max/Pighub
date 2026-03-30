@@ -877,7 +877,19 @@ end
 
 _loadSettings()
 
-local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+local WindUI
+local _wok, _werr = pcall(function()
+    WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua", true))()
+end)
+if not _wok or not WindUI then
+    pcall(function()
+        WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua", true))()
+    end)
+end
+if not WindUI then
+    game:GetService("StarterGui"):SetCore("SendNotification", {Title="PIG HUB", Text="โหลด UI ไม่สำเร็จ กรุณา run ใหม่", Duration=5})
+    return
+end
 
 local Window = WindUI:CreateWindow({
     Title = "PIG HUB",

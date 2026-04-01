@@ -1368,50 +1368,23 @@ end)
 
 local _SA_Remote = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Send")
 local _oldFire
-local _lastShootFrom = nil
-local _lastShootTo = nil
-local _shootTime = 0
 
--- Bullet Tracer drawings
-local BulletTracers = {}
-for i = 1, 5 do
-    local line = Drawing.new("Line")
-    line.Thickness = 2
-    line.Color = Color3.fromRGB(255, 50, 50)
-    line.Visible = false
-    line.ZIndex = 5
-    table.insert(BulletTracers, {line=line, alpha=0, from=Vector2.new(), to=Vector2.new()})
+local function spawnBulletBeam(fromPos, toPos)
+    pcall(function()
+        local dist = (toPos - fromPos).Magnitude
+        local beam = Instance.new("Part")
+        beam.Anchored = true
+        beam.CanCollide = false
+        beam.CastShadow = false
+        beam.Size = Vector3.new(0.04, 0.04, dist)
+        beam.CFrame = CFrame.new(fromPos, toPos) * CFrame.new(0, 0, -dist/2)
+        beam.Material = Enum.Material.Neon
+        beam.Color = Color3.fromRGB(160, 32, 240)
+        beam.Transparency = 0.1
+        beam.Parent = workspace
+        game:GetService("Debris"):AddItem(beam, 0.06)
+    end)
 end
-local _tracerIdx = 1
-
-local function spawnBulletTracer(fromPos, toPos)
-    local myHead = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Head")
-    if not myHead then return end
-    local screenFrom, onA = Camera:WorldToViewportPoint(myHead.Position)
-    local screenTo, onB = Camera:WorldToViewportPoint(toPos)
-    if not onA or not onB then return end
-    local t = BulletTracers[_tracerIdx]
-    t.from = Vector2.new(screenFrom.X, screenFrom.Y)
-    t.to = Vector2.new(screenTo.X, screenTo.Y)
-    t.alpha = 1
-    _tracerIdx = (_tracerIdx % #BulletTracers) + 1
-end
-
--- animate tracers
-RunService.RenderStepped:Connect(function()
-    for _, t in ipairs(BulletTracers) do
-        if t.alpha > 0 then
-            t.alpha = t.alpha - 0.06
-            t.line.From = t.from
-            t.line.To = t.to
-            t.line.Color = Color3.fromRGB(255, math.floor(50 + t.alpha*100), 50)
-            t.line.Transparency = 1 - t.alpha
-            t.line.Visible = true
-        else
-            t.line.Visible = false
-        end
-    end
-end)
 
 pcall(function()
     _oldFire = hookfunction(_SA_Remote.FireServer, function(self, ...)
@@ -1432,14 +1405,14 @@ pcall(function()
                     for i = 1, 6 do
                         local spread = Vector3.new(math.random(-2,2)*0.03, math.random(-2,2)*0.03, math.random(-2,2)*0.03)
                         table.insert(pellets, {{Instance=head, Normal=Vector3.new(0,1,0), Position=aimPos+spread}})
-                        spawnBulletTracer(myPos, aimPos+spread)
+                        spawnBulletBeam(myPos, aimPos+spread)
                     end
                     args[5] = pellets
                 else
                     local blocked = myPos and isBehindWall(myPos, aimPos)
                     if myPos then args[4] = blocked and CFrame.new(math.huge, math.huge, math.huge) or CFrame.new(myPos, aimPos) end
                     args[5] = {{[1]={Instance=head, Normal=Vector3.new(0,1,0), Position=aimPos}}}
-                    if myPos and not blocked then spawnBulletTracer(myPos, aimPos) end
+                    if myPos and not blocked then spawnBulletBeam(myPos, aimPos) end
                 end
             end
         elseif args[2] == "shoot_gun" then
@@ -1448,7 +1421,7 @@ pcall(function()
             if myHead and args[4] and typeof(args[4]) == "CFrame" then
                 local dir = args[4].LookVector
                 local toPos = myHead.Position + dir * 100
-                spawnBulletTracer(myHead.Position, toPos)
+                spawnBulletBeam(myHead.Position, toPos)
             end
         end
         return _oldFire(self, unpack(args))
